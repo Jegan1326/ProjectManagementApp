@@ -1,0 +1,84 @@
+/* Admin Layout */
+.admin-dashboard-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.admin-title {
+    margin-bottom: 30px;
+    color: #1a202c;
+}
+
+/* Table Design */
+.admin-table {
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border-collapse: collapse;
+}
+
+.admin-table thead {
+    background-color: #2d3748;
+    color: white;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-table th {
+    font-weight: 600;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Action Buttons */
+.action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-right: 8px;
+    transition: opacity 0.2s;
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-approve {
+    background-color: #48bb78;
+    color: white;
+}
+
+.btn-reject {
+    background-color: #ed8936;
+    color: white;
+}
+
+.btn-delete {
+    background-color: #f56565;
+    color: white;
+}
+
+.btn-approve:hover:not(:disabled) {
+    background-color: #38a169;
+}
+
+.btn-reject:hover:not(:disabled) {
+    background-color: #dd6b20;
+}
+
+.btn-delete:hover:not(:disabled) {
+    background-color: #e53e3e;
+}

@@ -1,0 +1,402 @@
+.admin-dashboard {
+  padding: 20px;
+  margin-left: 250px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: calc(100vh - 60px);
+}
+
+.admin-header {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #333;
+}
+
+.admin-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.admin-header .subtitle {
+  font-size: 1rem;
+  color: #7f8c8d;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-left: 4px solid #f44336;
+}
+
+.permission-denied {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 1.5rem;
+  color: #721c24;
+  background-color: #f8d7da;
+  border-radius: 8px;
+  margin: 20px;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 25px;
+}
+
+.project-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border-left: 5px solid #757575;
+}
+
+.project-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+
+.project-card.status-active {
+  border-left-color: #4CAF50;
+}
+
+.project-card.status-on_hold {
+  border-left-color: #FF9800;
+}
+
+.project-card.status-completed {
+  border-left-color: #2196F3;
+}
+
+.project-card.status-archived {
+  border-left-color: #9E9E9E;
+}
+
+.project-card.status-deleted {
+  border-left-color: #F44336;
+  opacity: 0.7;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  flex: 1;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.card-content {
+  padding: 20px;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.card-content p {
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+.pending-requests {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #FFF3CD;
+  border-radius: 5px;
+  border-left: 4px solid #FF9800;
+}
+
+.pending-count {
+  margin: 0;
+  color: #856404;
+  font-weight: bold;
+}
+
+.card-actions {
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+  text-align: right;
+}
+
+.expand-btn {
+  background-color: #667eea;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.expand-btn:hover {
+  background-color: #764ba2;
+  transform: scale(1.05);
+}
+
+.card-expanded {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  background-color: #f9f9f9;
+}
+
+.status-actions,
+.destructive-actions,
+.requests-info {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+}
+
+.status-actions h3,
+.destructive-actions h3,
+.requests-info h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1rem;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.action-btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.action-btn:hover:not(.disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.active-btn {
+  background-color: #4CAF50;
+}
+
+.active-btn:hover:not(.disabled) {
+  background-color: #45a049;
+}
+
+.hold-btn {
+  background-color: #FF9800;
+}
+
+.hold-btn:hover:not(.disabled) {
+  background-color: #e68900;
+}
+
+.completed-btn {
+  background-color: #2196F3;
+}
+
+.completed-btn:hover:not(.disabled) {
+  background-color: #0b7dda;
+}
+
+.archive-btn {
+  background-color: #9E9E9E;
+}
+
+.archive-btn:hover:not(.disabled) {
+  background-color: #757575;
+}
+
+.delete-btn {
+  background-color: #F44336;
+}
+
+.delete-btn:hover:not(.disabled) {
+  background-color: #da190b;
+}
+
+.request-info {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f0f0f0;
+  border-left: 3px solid #667eea;
+  border-radius: 3px;
+}
+
+.request-info p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.request-reason {
+  color: #666;
+  font-style: italic;
+}
+
+.request-date {
+  color: #2196F3;
+  font-weight: bold;
+}
+
+.no-projects {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  font-size: 1.1rem;
+  color: #999;
+}
+
+.date-actions {
+  margin-top: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+}
+
+.date-actions h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1rem;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.date-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.date-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.input-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+}
+
+.date-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.save-btn {
+  background-color: #4CAF50;
+}
+
+.save-btn:hover:not(.disabled) {
+  background-color: #45a049;
+}
+
+.cancel-btn {
+  background-color: #9E9E9E;
+}
+
+.cancel-btn:hover:not(.disabled) {
+  background-color: #757575;
+}
+
+.edit-dates-btn {
+  background-color: #2196F3;
+  width: 100%;
+}
+
+.edit-dates-btn:hover:not(.disabled) {
+  background-color: #0b7dda;
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .card-header h2 {
+    margin-bottom: 10px;
+  }
+
+  .admin-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .date-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .date-buttons {
+    grid-template-columns: 1fr;
+  }
+}

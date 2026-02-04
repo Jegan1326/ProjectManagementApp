@@ -1,0 +1,143 @@
+/* Overall Look */
+body {
+    background-color: #f4f6f8;
+    color: #333;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Delete Button */
+.delete-btn {
+    padding: 8px 12px;
+    background-color: #f56565;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    margin-left: 15px;
+    transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: #e53e3e;
+}
+
+/* Form Container */
+.user-form-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.user-form-title {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #1a202c;
+}
+
+/* Form Fields */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    border-color: #3182ce;
+    outline: none;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: #2b6cb0;
+}
+
+/* User Records Cards */
+.timesheet-list-container {
+    max-width: 800px;
+    margin: 40px auto;
+    display: grid;
+    gap: 20px;
+}
+
+.timesheet-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-info h3 {
+    margin: 0 0 5px 0;
+    color: #2d3748;
+}
+
+.card-details {
+    color: #718096;
+    font-size: 14px;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status-pending {
+    background-color: #feebc8;
+    color: #c05621;
+}
+
+.status-approved {
+    background-color: #c6f6d5;
+    color: #2f855a;
+}
+
+.status-rejected {
+    background-color: #fed7d7;
+    color: #c53030;
+}

@@ -1,0 +1,96 @@
+.create-project-container {
+  max-width: 600px;
+  margin: 40px auto;
+  margin-left: 280px;
+  padding: 40px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create-project-container h1 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.role-info {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+.permission-denied {
+  color: #d32f2f;
+  padding: 20px;
+  background: #ffebee;
+  border-radius: 4px;
+  border-left: 4px solid #d32f2f;
+  font-weight: 500;
+}
+
+.create-project-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.create-project-container input,
+.create-project-container textarea,
+.create-project-container select {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.create-project-container input:focus,
+.create-project-container textarea:focus,
+.create-project-container select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.create-project-container textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.create-project-container label {
+  margin-top: 10px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.employees-select {
+  min-height: 120px;
+  padding: 8px;
+}
+
+.create-project-container button {
+  padding: 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+  margin-top: 10px;
+}
+
+.create-project-container button:hover {
+  background: #764ba2;
+}
+
+.create-project-container button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 14px;
+}
