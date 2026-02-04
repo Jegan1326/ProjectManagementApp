@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import {
     FileText,
     File,
+    FileImage,
+    FileCode,
     Trash2,
     Download,
     Filter,
     Search,
     Plus,
-    Upload
+    Upload,
+    Loader2
 } from 'lucide-react';
 import { documentAPI, projectAPI, uploadAPI } from '../services/api';
 
@@ -168,15 +171,17 @@ const DocumentManager = ({ user }) => {
                     </div>
                 </div>
 
-                <label className={`
-                    bg-primary text-black font-black px-6 py-2.5 rounded-xl text-sm shadow-neon 
-                    hover:scale-105 transition-all flex items-center gap-2 cursor-pointer
-                    ${uploading ? 'opacity-50 pointer-events-none' : ''}
-                `}>
-                    {uploading ? <Loader2 className="animate-spin" size={18} /> : <Upload size={18} />}
-                    <input type="file" className="hidden" onChange={handleFileUpload} />
-                    UPLOAD FILE
-                </label>
+                {user.role !== 'Client' && (
+                    <label className={`
+                        bg-primary text-black font-black px-6 py-2.5 rounded-xl text-sm shadow-neon 
+                        hover:scale-105 transition-all flex items-center gap-2 cursor-pointer
+                        ${uploading ? 'opacity-50 pointer-events-none' : ''}
+                    `}>
+                        {uploading ? <Loader2 className="animate-spin" size={18} /> : <Upload size={18} />}
+                        <input type="file" className="hidden" onChange={handleFileUpload} />
+                        UPLOAD FILE
+                    </label>
+                )}
             </div>
 
             {/* Grid */}
@@ -206,13 +211,15 @@ const DocumentManager = ({ user }) => {
                                         >
                                             <Download size={16} />
                                         </a>
-                                        <button
-                                            onClick={() => handleDelete(doc._id)}
-                                            className="p-1.5 hover:bg-white/10 rounded-lg text-muted hover:text-red-500"
-                                            title="Delete"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
+                                        {['Super Admin', 'Project Admin', 'Project Manager'].includes(user.role) && (
+                                            <button
+                                                onClick={() => handleDelete(doc._id)}
+                                                className="p-1.5 hover:bg-white/10 rounded-lg text-muted hover:text-red-500"
+                                                title="Delete"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
 

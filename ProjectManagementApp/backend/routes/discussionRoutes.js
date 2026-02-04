@@ -1,17 +1,17 @@
 const express = require('express');
 const { getDiscussions, createDiscussion, deleteDiscussion, addComment } = require('../controllers/discussionController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 const router = express.Router({ mergeParams: true });
 
 router.route('/')
     .get(protect, getDiscussions)
-    .post(protect, createDiscussion);
+    .post(protect, authorize('Super Admin', 'Project Admin', 'Project Manager', 'Team Member'), createDiscussion);
 
 router.route('/:id')
-    .delete(protect, deleteDiscussion);
+    .delete(protect, authorize('Super Admin', 'Project Admin', 'Project Manager'), deleteDiscussion);
 
 router.route('/:id/comments')
-    .post(protect, addComment);
+    .post(protect, authorize('Super Admin', 'Project Admin', 'Project Manager', 'Team Member'), addComment);
 
 module.exports = router;

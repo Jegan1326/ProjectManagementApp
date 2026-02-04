@@ -16,6 +16,48 @@ import {
 import { taskAPI, projectAPI } from '../services/api';
 import TaskDetailModal from './TaskDetailModal';
 
+const TaskTimer = ({ assignedAt }) => {
+    const [elapsed, setElapsed] = useState(0);
+
+    useEffect(() => {
+        const calculateElapsed = () => {
+            const start = new Date(assignedAt).getTime();
+            const now = Date.now();
+            return Math.floor((now - start) / 1000);
+        };
+
+        setElapsed(calculateElapsed()); // Initial set
+
+        const interval = setInterval(() => {
+            setElapsed(calculateElapsed());
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [assignedAt]);
+
+    const formatTime = (totalSeconds) => {
+        if (totalSeconds < 0) return "00:00:00"; // Should not happen unless clock skew
+        const days = Math.floor(totalSeconds / (3600 * 24));
+        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        let timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        if (days > 0) timeStr = `${days}d ` + timeStr;
+        return timeStr;
+    };
+
+    return (
+        <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="text-[10px] font-black text-primary uppercase tracking-wider">Active: {formatTime(elapsed)}</span>
+            </div>
+            <Clock size={12} className="text-primary opacity-50" />
+        </div>
+    );
+};
+
 const TaskCard = ({ task, onUpdate, onStartTimer, onClick }) => {
     const hasTimer = task.assignee && task.status !== 'Completed';
 
@@ -35,20 +77,9 @@ const TaskCard = ({ task, onUpdate, onStartTimer, onClick }) => {
             <h4 className="font-bold text-sm mb-1 group-hover:text-primary transition-colors">{task.title}</h4>
             <p className="text-xs text-muted line-clamp-2 mb-4 leading-relaxed">{task.description}</p>
 
-            {hasTimer && (
+            {hasTimer && (task.assignedAt || task.updatedAt) && (
                 <div className="mb-4 p-2 rounded-lg bg-primary/5 border border-primary/20" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Clock size={12} className="text-primary" />
-                            <span className="text-[10px] font-black text-primary uppercase tracking-wider">Time Tracker</span>
-                        </div>
-                        <button
-                            onClick={() => onStartTimer(task)}
-                            className="p-1 hover:bg-primary/20 rounded-md transition-colors"
-                        >
-                            <Play size={12} className="text-primary" />
-                        </button>
-                    </div>
+                    <TaskTimer assignedAt={task.assignedAt || task.updatedAt} />
                 </div>
             )}
 

@@ -37,16 +37,38 @@ const Sidebar = ({ currentView, onNavigate, user }) => {
         { id: 'Customers', icon: <Users size={20} />, label: 'Customers' },
     ];
 
-    const menuItems = user?.role === 'Client'
-        ? allMenuItems.filter(item => ['Overview', 'Documents', 'Discussions'].includes(item.id))
-        : allMenuItems;
+    const menuItems = React.useMemo(() => {
+        if (!user) return [];
+        switch (user.role) {
+            case 'Client':
+                return allMenuItems.filter(item => ['Overview', 'Documents', 'Discussions'].includes(item.id));
+            case 'Team Member':
+                // Team Members focus on execution: Tasks, Timesheets, Chat, Docs. No Reports/Customers.
+                return allMenuItems.filter(item => ['Overview', 'Projects', 'Tasks', 'Timesheets', 'Discussions', 'Documents', 'Issues'].includes(item.id));
+            case 'Project Manager':
+                // Managers see everything except maybe Customers (unless needed)
+                return allMenuItems.filter(item => item.id !== 'Customers');
+            default: // Admins
+                return allMenuItems;
+        }
+    }, [user]);
 
-    const settingItems = [
-        { id: 'Messages', icon: <Mail size={20} />, label: 'Messages' },
-        { id: 'Trash', icon: <Trash2 size={20} />, label: 'Trash Bin' },
-        { id: 'Settings', icon: <Settings size={20} />, label: 'Settings' },
-        { id: 'Help', icon: <HelpCircle size={20} />, label: 'Help Centre' },
-    ];
+    const settingItems = React.useMemo(() => {
+        if (!user) return [];
+        // Start with base items
+        const base = [
+            { id: 'Messages', icon: <Mail size={20} />, label: 'Messages' },
+            { id: 'Trash', icon: <Trash2 size={20} />, label: 'Trash Bin' },
+            { id: 'Help', icon: <HelpCircle size={20} />, label: 'Help Centre' },
+        ];
+
+        // Only Admins get 'Settings'
+        if (['Super Admin', 'Project Admin'].includes(user.role)) {
+            base.splice(2, 0, { id: 'Settings', icon: <Settings size={20} />, label: 'Settings' });
+        }
+
+        return base;
+    }, [user]);
 
     return (
         <div className="w-64 bg-sidebar h-screen border-r border-border p-6 flex flex-col gap-8">

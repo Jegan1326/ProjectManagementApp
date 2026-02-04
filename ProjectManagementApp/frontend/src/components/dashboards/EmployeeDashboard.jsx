@@ -26,7 +26,8 @@ const StatusCard = ({ title, value, change, trend, icon: Icon, color }) => (
     </div>
 );
 
-const EmployeeDashboard = ({ user, tasks = [] }) => {
+const EmployeeDashboard = ({ user, tasks = [], myTimesheets = [] }) => {
+    const totalHours = myTimesheets.reduce((acc, curr) => acc + (curr.hours || 0), 0);
     // const [tasks, setTasks] = useState([]); // Removed
     // const [loading, setLoading] = useState(true); // Removed
 
@@ -44,17 +45,14 @@ const EmployeeDashboard = ({ user, tasks = [] }) => {
                     <p className="text-sm text-muted">Good day, {user.name}. Ready to work?</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="bg-primary text-black font-bold px-6 py-2.5 rounded-xl text-sm shadow-neon hover:scale-105 transition-all flex items-center gap-2">
-                        <Play size={18} />
-                        START TIMER
-                    </button>
+                    {/* Manual Timer Removed as per auto-start requirement */}
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <StatusCard title="My Pending Tasks" value={pendingTasks.length} change="Due Soon" trend="down" icon={CheckSquare} color="blue" />
-                <StatusCard title="Hours Logged" value="32.5" change="This Week" trend="up" icon={Clock} color="purple" />
-                <StatusCard title="Open Issues" value="1" change="Assigned to me" trend="down" icon={AlertCircle} color="red" />
+                <StatusCard title="Hours Logged" value={totalHours} change="Total Time" trend="up" icon={Clock} color="purple" />
+                <StatusCard title="Completed Tasks" value={tasks.filter(t => t.status === 'Completed').length} change="Good Job!" trend="up" icon={CheckSquare} color="green" />
             </div>
 
             <div className="glass-card p-8">

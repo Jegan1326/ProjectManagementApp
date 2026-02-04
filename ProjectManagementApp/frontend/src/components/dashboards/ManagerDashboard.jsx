@@ -27,7 +27,21 @@ const StatusCard = ({ title, value, change, trend, icon: Icon, color }) => (
     </div>
 );
 
-const ManagerDashboard = ({ user, projects = [], onCreateProject }) => {
+const ManagerDashboard = ({ user, projects = [], tasks = [], stats, allUsers = [] }) => {
+    const activeProjects = projects.filter(p => p.status === 'Active');
+
+    // Calculate team workload (tasks per user)
+    const workload = {};
+    tasks.forEach(task => {
+        if (task.assignee) {
+            // If assignee is object use _id, else use string
+            const id = typeof task.assignee === 'object' ? task.assignee._id : task.assignee;
+            // Try to find name in allUsers
+            const userObj = allUsers.find(u => u._id === id);
+            const name = userObj ? userObj.name : 'Unknown';
+            workload[name] = (workload[name] || 0) + 1;
+        }
+    });
     // const [projects, setProjects] = useState([]); // Removed
     // const [loading, setLoading] = useState(true); // Removed
 
@@ -42,39 +56,37 @@ const ManagerDashboard = ({ user, projects = [], onCreateProject }) => {
                     <h1 className="text-3xl font-bold mb-1">Manager Dashboard</h1>
                     <p className="text-sm text-muted">Overview of your team's performance.</p>
                 </div>
-                <div className="flex gap-3">
-                    <button
-                        onClick={onCreateProject}
-                        className="bg-primary text-black font-bold px-6 py-2.5 rounded-xl text-sm shadow-neon hover:scale-105 transition-all flex items-center gap-2"
-                    >
-                        <Plus size={18} />
-                        CREATE PROJECT
-                    </button>
-                </div>
+                {/* Manager cannot create projects */}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatusCard title="My Projects" value={projects.length} change="Active" trend="up" icon={Briefcase} color="blue" />
-                <StatusCard title="Team Members" value="5" change="Fully Staffed" trend="up" icon={Users} color="green" />
-                <StatusCard title="Pending Approvals" value="3" change="Needs Review" trend="down" icon={AlertCircle} color="yellow" />
-                <StatusCard title="Milestones Met" value="8" change="On Track" trend="up" icon={CheckCircle} color="purple" />
+                <StatusCard title="Active Projects" value={activeProjects.length} change="Currently Running" trend="up" icon={Briefcase} color="blue" />
+                <StatusCard title="Total Team" value={allUsers.length} change="Registered Users" trend="up" icon={Users} color="green" />
+                <StatusCard title="Pending Issues" value={stats?.issues?.pending || 0} change="Needs Review" trend="down" icon={AlertCircle} color="yellow" />
+                <StatusCard title="Completed Projects" value={stats?.projects?.completed || 0} change="Successfully Met" trend="up" icon={CheckCircle} color="purple" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="glass-card p-6">
                     <h3 className="font-bold mb-4">Team Workload</h3>
                     <div className="space-y-4">
-                        {['Alice', 'Bob', 'Charlie'].map(member => (
-                            <div key={member} className="space-y-1">
-                                <div className="flex justify-between text-xs">
-                                    <span>{member}</span>
-                                    <span className="text-muted">85% Utilized</span>
-                                </div>
-                                <div className="h-2 bg-card rounded-full overflow-hidden">
-                                    <div className="h-full bg-primary w-[85%]"></div>
-                                </div>
-                            </div>
-                        ))}
+                        <div className="space-y-4">
+                            {Object.keys(workload).length === 0 ? (
+                                <p className="text-muted text-sm">No active tasks assigned.</p>
+                            ) : (
+                                Object.entries(workload).map(([member, count]) => (
+                                    <div key={member} className="space-y-1">
+                                        <div className="flex justify-between text-xs">
+                                            <span>{member}</span>
+                                            <span className="text-muted">{count} Tasks</span>
+                                        </div>
+                                        <div className="h-2 bg-card rounded-full overflow-hidden">
+                                            <div className="h-full bg-primary" style={{ width: `${Math.min((count / 10) * 100, 100)}%` }}></div>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="glass-card p-6">

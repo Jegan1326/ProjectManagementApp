@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import AdminDashboard from './dashboards/AdminDashboard';
 import ManagerDashboard from './dashboards/ManagerDashboard';
 import EmployeeDashboard from './dashboards/EmployeeDashboard';
-import { projectAPI, taskAPI } from '../services/api';
+import ClientDashboard from './ClientDashboard';
+import { projectAPI, taskAPI, reportAPI, userAPI, timesheetAPI } from '../services/api';
 import { X, Loader2 } from 'lucide-react';
 
 const DashboardOverview = ({ user }) => {
@@ -21,6 +22,9 @@ const DashboardOverview = ({ user }) => {
     const [projects, setProjects] = useState([]);
     const [tasks, setTasks] = useState([]);
     const [templates, setTemplates] = useState([]);
+    const [stats, setStats] = useState(null);
+    const [allUsers, setAllUsers] = useState([]);
+    const [myTimesheets, setMyTimesheets] = useState([]);
 
     const fetchData = async () => {
         try {
@@ -30,6 +34,24 @@ const DashboardOverview = ({ user }) => {
             setTasks(taskData);
             const { data: tmplData } = await projectAPI.getTemplates();
             setTemplates(tmplData);
+
+            // new data for dashboard
+            try {
+                const { data: statsData } = await reportAPI.getDashboardStats();
+                setStats(statsData);
+            } catch (e) { console.error("Stats error", e); }
+
+            try {
+                const { data: usersData } = await userAPI.getUsers();
+                setAllUsers(usersData);
+            } catch (e) { console.error("Users error", e); }
+
+            if (user.role === 'Employee') {
+                try {
+                    const { data: tsData } = await timesheetAPI.getMyTimesheets();
+                    setMyTimesheets(tsData);
+                } catch (e) { console.error("Timesheet error", e); }
+            }
         } catch (err) {
             console.error('Failed to fetch dashboard data:', err);
         } finally {
@@ -87,10 +109,21 @@ const DashboardOverview = ({ user }) => {
     // Render Dashboard based on Role
     let DashboardComponent;
     switch (user?.role) {
-        case 'Admin': DashboardComponent = AdminDashboard; break;
-        case 'Project Manager': DashboardComponent = ManagerDashboard; break;
-        case 'Employee': DashboardComponent = EmployeeDashboard; break;
-        default: DashboardComponent = AdminDashboard;
+        case 'Super Admin':
+        case 'Project Admin':
+            DashboardComponent = AdminDashboard;
+            break;
+        case 'Project Manager':
+            DashboardComponent = ManagerDashboard;
+            break;
+        case 'Team Member':
+            DashboardComponent = EmployeeDashboard;
+            break;
+        case 'Client':
+            DashboardComponent = ClientDashboard;
+            break;
+        default:
+            DashboardComponent = AdminDashboard;
     }
 
     return (
@@ -99,8 +132,12 @@ const DashboardOverview = ({ user }) => {
                 user={user}
                 projects={projects}
                 tasks={tasks}
-                onCreateProject={openCreateModal}
-                onEditProject={openEditModal}
+                stats={stats}
+                allUsers={allUsers}
+                myTimesheets={myTimesheets}
+                // Only pass create/edit if Admin
+                onCreateProject={user.role === 'Project Manager' ? undefined : openCreateModal}
+                onEditProject={user.role === 'Project Manager' ? undefined : openEditModal}
             />
 
             {/* Create/Edit Project Modal */}

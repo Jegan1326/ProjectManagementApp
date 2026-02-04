@@ -1,5 +1,6 @@
 const Discussion = require('../models/Discussion');
 const Project = require('../models/Project');
+const { createNotification } = require('./notificationController');
 
 // @desc    Get all discussions for a project
 // @route   GET /api/projects/:projectId/discussions
@@ -35,6 +36,22 @@ exports.createDiscussion = async (req, res) => {
 
         const populatedDiscussion = await Discussion.findById(discussion._id)
             .populate('author', 'name email');
+
+        // Notify Project Team
+        const projectData = await Project.findById(req.params.projectId);
+        if (projectData && projectData.team) {
+            projectData.team.forEach(async (memberId) => {
+                if (memberId.toString() !== req.user._id.toString()) {
+                    await createNotification({
+                        recipient: memberId,
+                        sender: req.user._id,
+                        type: 'ALERT', // Using ALERT for new discussion
+                        message: `New discussion in ${projectData.name}: ${title}`,
+                        link: `/projects/${req.params.projectId}/discussion`
+                    });
+                }
+            });
+        }
 
         res.status(201).json(populatedDiscussion);
     } catch (error) {
@@ -77,6 +94,17 @@ exports.addComment = async (req, res) => {
         const updatedDiscussion = await Discussion.findById(req.params.id)
             .populate('author', 'name')
             .populate('comments.author', 'name');
+
+        // Notify Discussion Author
+        if (discussion.author.toString() !== req.user._id.toString()) {
+            await createNotification({
+                recipient: discussion.author,
+                sender: req.user._id,
+                type: 'COMMENT_ADDED',
+                message: `New comment on your discussion: ${discussion.title}`,
+                link: `/projects/${discussion.project}/discussion`
+            });
+        }
 
         res.json(updatedDiscussion);
     } catch (error) {

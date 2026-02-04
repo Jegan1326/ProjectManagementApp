@@ -130,7 +130,7 @@ const ProjectDiscussion = ({ user }) => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 overflow-hidden">
                 {/* Discussion List */}
-                <div className="lg:col-span-2 overflow-y-auto custom-scrollbar space-y-6 pr-2">
+                <div className={`${user.role === 'Client' ? 'lg:col-span-3' : 'lg:col-span-2'} overflow-y-auto custom-scrollbar space-y-6 pr-2`}>
                     {loading ? (
                         <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
                     ) : discussions.length === 0 ? (
@@ -194,26 +194,28 @@ const ProjectDiscussion = ({ user }) => {
                                         ))}
                                     </div>
 
-                                    <form
-                                        onSubmit={(e) => {
-                                            e.preventDefault();
-                                            const val = e.target.elements.comment.value;
-                                            if (val.trim()) {
-                                                handleComment(post._id, val);
-                                                e.target.reset();
-                                            }
-                                        }}
-                                        className="relative"
-                                    >
-                                        <input
-                                            name="comment"
-                                            placeholder="Write a comment..."
-                                            className="w-full bg-background/50 border border-border rounded-xl py-2 pl-4 pr-10 text-sm focus:outline-none focus:border-primary/50"
-                                        />
-                                        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:scale-110 transition-transform">
-                                            <Send size={16} />
-                                        </button>
-                                    </form>
+                                    {user.role !== 'Client' && (
+                                        <form
+                                            onSubmit={(e) => {
+                                                e.preventDefault();
+                                                const val = e.target.elements.comment.value;
+                                                if (val.trim()) {
+                                                    handleComment(post._id, val);
+                                                    e.target.reset();
+                                                }
+                                            }}
+                                            className="relative"
+                                        >
+                                            <input
+                                                name="comment"
+                                                placeholder="Write a comment..."
+                                                className="w-full bg-background/50 border border-border rounded-xl py-2 pl-4 pr-10 text-sm focus:outline-none focus:border-primary/50"
+                                            />
+                                            <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:scale-110 transition-transform">
+                                                <Send size={16} />
+                                            </button>
+                                        </form>
+                                    )}
                                 </div>
                             </div>
                         ))
@@ -221,43 +223,45 @@ const ProjectDiscussion = ({ user }) => {
                 </div>
 
                 {/* New Discussion Form */}
-                <div className="glass-card p-6 h-fit sticky top-0">
-                    <h3 className="font-bold text-lg mb-4">Start Discussion</h3>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <input
-                            required
-                            placeholder="Topic Title"
-                            className="w-full bg-card/50 border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary/50"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                        />
-                        <textarea
-                            required
-                            placeholder="What's on your mind?"
-                            className="w-full bg-card/50 border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary/50 min-h-[150px]"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                        />
+                {user.role !== 'Client' && (
+                    <div className="glass-card p-6 h-fit sticky top-0">
+                        <h3 className="font-bold text-lg mb-4">Start Discussion</h3>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <input
+                                required
+                                placeholder="Topic Title"
+                                className="w-full bg-card/50 border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary/50"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                            />
+                            <textarea
+                                required
+                                placeholder="What's on your mind?"
+                                className="w-full bg-card/50 border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary/50 min-h-[150px]"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                            />
 
-                        <div className="flex items-center justify-between border border-border border-dashed rounded-xl p-3">
-                            <div className="flex items-center gap-2 overflow-hidden">
-                                <label className="cursor-pointer bg-card hover:bg-white/10 p-2 rounded-lg transition-colors">
-                                    <Paperclip size={18} />
-                                    <input type="file" className="hidden" onChange={handleFileChange} />
-                                </label>
-                                {file && <span className="text-xs text-muted truncate">{file.name}</span>}
+                            <div className="flex items-center justify-between border border-border border-dashed rounded-xl p-3">
+                                <div className="flex items-center gap-2 overflow-hidden">
+                                    <label className="cursor-pointer bg-card hover:bg-white/10 p-2 rounded-lg transition-colors">
+                                        <Paperclip size={18} />
+                                        <input type="file" className="hidden" onChange={handleFileChange} />
+                                    </label>
+                                    {file && <span className="text-xs text-muted truncate">{file.name}</span>}
+                                </div>
                             </div>
-                        </div>
 
-                        <button
-                            disabled={uploading}
-                            className="w-full bg-primary text-black font-black py-3 rounded-xl shadow-neon hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                        >
-                            {uploading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
-                            POST MESSAGE
-                        </button>
-                    </form>
-                </div>
+                            <button
+                                disabled={uploading}
+                                className="w-full bg-primary text-black font-black py-3 rounded-xl shadow-neon hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            >
+                                {uploading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
+                                POST MESSAGE
+                            </button>
+                        </form>
+                    </div>
+                )}
             </div>
         </div>
     );

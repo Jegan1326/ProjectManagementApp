@@ -1,7 +1,32 @@
-import { Mail, HelpCircle, LogOut, Sun, Bell, Globe, RefreshCcw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mail, HelpCircle, LogOut, Sun, Bell, Globe, RefreshCcw, CheckCircle, AlertCircle } from 'lucide-react';
 import Sidebar from './Sidebar';
+import { notificationAPI, taskAPI, userAPI } from '../services/api';
 
 const Layout = ({ children, currentView, onNavigate, user, onLogout }) => {
+    const [notifications, setNotifications] = useState([]);
+    const [recentTasks, setRecentTasks] = useState([]);
+    const [teamMembers, setTeamMembers] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [notifRes, taskRes, userRes] = await Promise.all([
+                    notificationAPI.getNotifications(),
+                    taskAPI.getTasks(),
+                    userAPI.getUsers()
+                ]);
+                setNotifications(notifRes.data.slice(0, 5));
+                setRecentTasks(taskRes.data.slice(0, 5));
+                setTeamMembers(userRes.data.slice(0, 5));
+            } catch (error) {
+                console.error("Failed to fetch sidebar data", error);
+            }
+        };
+        fetchData();
+        const interval = setInterval(fetchData, 30000); // Poll every 30s
+        return () => clearInterval(interval);
+    }, []);
     return (
         <div className="flex h-screen bg-background text-white overflow-hidden">
             <Sidebar currentView={currentView} onNavigate={onNavigate} user={user} />
@@ -47,59 +72,64 @@ const Layout = ({ children, currentView, onNavigate, user, onLogout }) => {
                     <div>
                         <h3 className="font-semibold mb-4">Notifications</h3>
                         <div className="space-y-4">
-                            {[
-                                { label: '56 New users registered.', time: 'Just now', icon: '👤' },
-                                { label: '132 Orders placed.', time: '59 Minutes ago', icon: '📦' },
-                                { label: 'Funds have been withdrawn.', time: '12 Hours ago', icon: '💰' },
-                                { label: '5 Unread messages.', time: 'Today, 11:59 PM', icon: '✉️' },
-                            ].map((n, i) => (
-                                <div key={i} className="flex gap-3 text-sm">
-                                    <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center border border-border">{n.icon}</div>
-                                    <div>
-                                        <p className="text-white/90">{n.label}</p>
-                                        <p className="text-[10px] text-muted">{n.time}</p>
+                            {notifications.length === 0 ? (
+                                <p className="text-xs text-muted">No new notifications</p>
+                            ) : (
+                                notifications.map((n, i) => (
+                                    <div key={n._id || i} className="flex gap-3 text-sm">
+                                        <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center border border-border">
+                                            <Bell size={14} className="text-primary" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-white/90 line-clamp-2 text-xs">{n.message}</p>
+                                            <p className="text-[10px] text-muted">{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
 
                     <div>
-                        <h3 className="font-semibold mb-4">Activities</h3>
+                        <h3 className="font-semibold mb-4">Recent Tasks</h3>
                         <div className="space-y-4 border-l border-border ml-2 pl-4">
-                            {[
-                                { label: 'Changed the style.', time: 'Just now' },
-                                { label: '177 New products added.', time: '47 Minutes ago' },
-                                { label: '11 Products have been archived.', time: '3 Days ago' },
-                            ].map((a, i) => (
-                                <div key={i} className="relative py-1">
-                                    <div className="absolute -left-[21px] top-2 w-2 h-2 rounded-full bg-primary shadow-neon"></div>
-                                    <p className="text-sm text-white/90">{a.label}</p>
-                                    <p className="text-[10px] text-muted">{a.time}</p>
-                                </div>
-                            ))}
+                            {recentTasks.length === 0 ? (
+                                <p className="text-xs text-muted pl-2">No recent tasks</p>
+                            ) : (
+                                recentTasks.map((task, i) => (
+                                    <div key={task._id || i} className="relative py-1">
+                                        <div className={`absolute -left-[21px] top-2 w-2 h-2 rounded-full shadow-neon ${task.status === 'Completed' ? 'bg-green-500' : 'bg-primary'}`}></div>
+                                        <p className="text-sm text-white/90 truncate">{task.title}</p>
+                                        <p className="text-[10px] text-muted">
+                                            {task.status} • {new Date(task.createdAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
 
                     <div>
                         <h3 className="font-semibold mb-4 flex justify-between items-center">
-                            Contacts of your managers
-                            <span className="text-muted">...</span>
+                            Team Members
                         </h3>
                         <div className="space-y-1">
-                            {['Daniel Craig', 'Kate Morrison', 'Nataniel Donovan', 'Elisabeth Wayne'].map((contact, i) => (
+                            {teamMembers.map((member, i) => (
                                 <div
-                                    key={i}
-                                    className={`flex items-center gap-3 p-2 rounded-xl transition-all ${contact === 'Nataniel Donovan' ? 'bg-primary text-black shadow-neon' : 'hover:bg-card text-muted hover:text-white'}`}
+                                    key={member._id || i}
+                                    className={`flex items-center gap-3 p-2 rounded-xl transition-all hover:bg-card text-muted hover:text-white`}
                                 >
-                                    <div className="w-4 h-4 rounded-full bg-gray-600"></div>
-                                    <span className="text-xs font-medium flex-1">{contact}</span>
-                                    {contact === 'Nataniel Donovan' && (
-                                        <div className="flex gap-2 text-black">
-                                            <Mail size={12} />
-                                            <HelpCircle size={12} />
-                                        </div>
-                                    )}
+                                    <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-[10px] text-white overflow-hidden">
+                                        {member.avatar ? (
+                                            <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span>{member.name?.charAt(0)}</span>
+                                        )}
+                                    </div>
+                                    <span className="text-xs font-medium flex-1 truncate">{member.name}</span>
+                                    <div className="flex gap-2 text-muted hover:text-white cursor-pointer">
+                                        <Mail size={12} />
+                                    </div>
                                 </div>
                             ))}
                         </div>

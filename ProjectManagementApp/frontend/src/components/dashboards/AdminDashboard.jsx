@@ -29,7 +29,10 @@ const StatusCard = ({ title, value, change, trend, icon: Icon, color }) => (
     </div>
 );
 
-const AdminDashboard = ({ user, projects = [], onCreateProject, onEditProject }) => {
+const AdminDashboard = ({ user, projects = [], stats, allUsers = [], onCreateProject, onEditProject }) => {
+    // recent projects
+    const recentProjects = [...projects].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+
     return (
         <div className="flex flex-col gap-8">
             <div className="flex justify-between items-center">
@@ -49,20 +52,22 @@ const AdminDashboard = ({ user, projects = [], onCreateProject, onEditProject })
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatusCard title="Total Users" value="12" change="+2" trend="up" icon={Users} color="blue" />
-                <StatusCard title="Total Projects" value={projects.length} change="+1" trend="up" icon={Briefcase} color="purple" />
-                <StatusCard title="System Load" value="24%" change="-5%" trend="down" icon={Activity} color="green" />
-                <StatusCard title="Server Status" value="Online" change="100% Uptime" trend="up" icon={Server} color="yellow" />
+                <StatusCard title="Total Users" value={stats?.users?.total || allUsers.length || 0} change="Active" trend="up" icon={Users} color="blue" />
+                <StatusCard title="Total Projects" value={stats?.projects?.total || projects.length} change="In System" trend="up" icon={Briefcase} color="purple" />
+                <StatusCard title="Total Tasks" value={stats?.tasks?.total || 0} change={`Completion: ${stats?.tasks?.rate || 0}%`} trend={stats?.tasks?.rate > 50 ? "up" : "down"} icon={Activity} color="green" />
+                <StatusCard title="Pending Issues" value={stats?.issues?.pending || 0} change="Needs Attention" trend="down" icon={Server} color="yellow" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="glass-card p-8">
-                    <h3 className="font-semibold text-xl mb-4">Recent System Logs</h3>
+                    <h3 className="font-semibold text-xl mb-4">Recent Projects</h3>
                     <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="flex justify-between items-center p-3 border-b border-border/50 text-sm">
-                                <span className="text-muted">User logged in from new IP</span>
-                                <span className="font-mono text-xs text-muted">10:4{i} AM</span>
+                        {recentProjects.length === 0 ? <p className="text-muted text-sm">No recent activity.</p> : recentProjects.map((p) => (
+                            <div key={p._id} className="flex justify-between items-center p-3 border-b border-border/50 text-sm">
+                                <span className="text-muted">New project created: <span className="text-white font-medium">{p.name}</span></span>
+                                <span className="font-mono text-xs text-muted">
+                                    {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'Just now'}
+                                </span>
                             </div>
                         ))}
                     </div>

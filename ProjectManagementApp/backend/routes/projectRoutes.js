@@ -4,13 +4,13 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 router.route('/')
-    .post(protect, authorize('Super Admin', 'Project Admin', 'Project Manager'), createProject)
+    .post(protect, authorize('Super Admin', 'Project Admin'), createProject)
     .get(protect, getProjects);
 
 router.route('/:id')
     .get(protect, getProjectById)
-    .put(protect, authorize('Super Admin', 'Project Admin', 'Project Manager'), updateProject)
-    .delete(protect, authorize('Super Admin', 'Project Admin', 'Project Manager'), deleteProject);
+    .put(protect, authorize('Super Admin', 'Project Admin'), updateProject)
+    .delete(protect, authorize('Super Admin', 'Project Admin'), deleteProject);
 
 router.route('/:id/request')
     .post(protect, submitProjectRequest);

@@ -14,7 +14,9 @@ import {
 import { timesheetAPI, projectAPI, taskAPI } from '../services/api';
 
 const TimesheetUI = ({ user }) => {
-    const [activeTab, setActiveTab] = useState('Submit');
+    // Admins/Managers default to Approvals, Employees (Team Member) to Submit
+    const initialTab = user.role === 'Team Member' ? 'Submit' : 'Approvals';
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [timesheets, setTimesheets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -36,7 +38,7 @@ const TimesheetUI = ({ user }) => {
             const { data: projData } = await projectAPI.getProjects();
             setProjects(projData);
 
-            if (user.role === 'Employee') {
+            if (user.role === 'Team Member') {
                 const { data: myData } = await timesheetAPI.getMyTimesheets();
                 setTimesheets(myData);
             } else {
@@ -103,7 +105,12 @@ const TimesheetUI = ({ user }) => {
             </div>
 
             <div className="flex gap-1 p-1 bg-card/30 rounded-2xl w-fit border border-border">
-                {['Submit', 'History', (user.role !== 'Employee' && 'Approvals')].filter(Boolean).map(tab => (
+                {[
+                    // Only Team Members can submit timesheets
+                    user.role === 'Team Member' && 'Submit',
+                    'History',
+                    (user.role !== 'Team Member' && 'Approvals')
+                ].filter(Boolean).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}

@@ -21,6 +21,7 @@ const seedData = async () => {
         console.log('Cleared existing data.');
 
         // 1. Create User (password will be hashed by the model's pre-save hook)
+        // 1. Create Users
         const adminUser = new User({
             name: 'Guy Hawkins',
             email: 'admin@example.com',
@@ -28,7 +29,32 @@ const seedData = async () => {
             role: 'Super Admin'
         });
         await adminUser.save();
-        console.log('Admin user created: admin@example.com / password123');
+
+        const managerUser = new User({
+            name: 'Robert Stark',
+            email: 'manager@example.com',
+            password: 'password123',
+            role: 'Project Manager'
+        });
+        await managerUser.save();
+
+        const employeeUser = new User({
+            name: 'John Doe',
+            email: 'employee@example.com',
+            password: 'password123',
+            role: 'Team Member'
+        });
+        await employeeUser.save();
+
+        const clientUser = new User({
+            name: 'Alice Client',
+            email: 'client@example.com',
+            password: 'password123',
+            role: 'Client'
+        });
+        await clientUser.save();
+
+        console.log('Users created: Admin, Manager, Employee, Client');
 
         // 2. Create Organization
         const org = new Organization({

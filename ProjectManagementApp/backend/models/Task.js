@@ -6,6 +6,7 @@ const TaskSchema = new mongoose.Schema({
     project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
     milestone: { type: mongoose.Schema.Types.ObjectId, ref: 'Milestone' },
     assignee: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    assignedAt: { type: Date },
     priority: {
         type: String,
         enum: ['Low', 'Medium', 'High', 'Urgent'],
