@@ -13,7 +13,7 @@ import {
     Pause,
     StopCircle
 } from 'lucide-react';
-import { taskAPI, projectAPI } from '../services/api';
+import { taskAPI, projectAPI, userAPI, timesheetAPI } from '../services/api';
 import TaskDetailModal from './TaskDetailModal';
 
 const TaskTimer = ({ assignedAt }) => {
@@ -78,8 +78,17 @@ const TaskCard = ({ task, onUpdate, onStartTimer, onClick }) => {
             <p className="text-xs text-muted line-clamp-2 mb-4 leading-relaxed">{task.description}</p>
 
             {hasTimer && (task.assignedAt || task.updatedAt) && (
-                <div className="mb-4 p-2 rounded-lg bg-primary/5 border border-primary/20" onClick={(e) => e.stopPropagation()}>
+                <div className="mb-4 p-2 rounded-lg bg-primary/5 border border-primary/20 flex justify-between items-center" onClick={(e) => e.stopPropagation()}>
                     <TaskTimer assignedAt={task.assignedAt || task.updatedAt} />
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onStartTimer(task);
+                        }}
+                        className="bg-primary text-black text-[10px] font-bold px-2 py-1.5 rounded-md hover:scale-105 transition-transform"
+                    >
+                        LOG TIME
+                    </button>
                 </div>
             )}
 
@@ -103,19 +112,21 @@ const TaskCard = ({ task, onUpdate, onStartTimer, onClick }) => {
     );
 };
 
-const Column = ({ title, tasks, onAddTask, status, onStartTimer, onTaskClick }) => (
+const Column = ({ title, tasks, onAddTask, status, onStartTimer, onTaskClick, canCreate }) => (
     <div className="flex flex-col gap-4 min-w-[300px] flex-1">
         <div className="flex justify-between items-center px-2">
             <div className="flex items-center gap-2">
                 <h3 className="font-bold text-sm uppercase tracking-widest">{title}</h3>
                 <span className="bg-card border border-border text-[10px] px-1.5 py-0.5 rounded-md text-muted font-bold">{tasks.length}</span>
             </div>
-            <button
-                onClick={() => onAddTask(status)}
-                className="p-1 hover:bg-primary/10 text-primary rounded-md transition-colors"
-            >
-                <Plus size={16} />
-            </button>
+            {canCreate && (
+                <button
+                    onClick={() => onAddTask(status)}
+                    className="p-1 hover:bg-primary/10 text-primary rounded-md transition-colors"
+                >
+                    <Plus size={16} />
+                </button>
+            )}
         </div>
         <div className="flex flex-col gap-3 h-full pb-10">
             {tasks.map(task => (
@@ -131,8 +142,19 @@ const Column = ({ title, tasks, onAddTask, status, onStartTimer, onTaskClick }) 
 );
 
 const TimerModal = ({ task, onClose, onSaveTimesheet }) => {
-    const [seconds, setSeconds] = useState(0);
-    const [isRunning, setIsRunning] = useState(false);
+    // Calculate initial seconds from assignedAt if available
+    const calculateInitialSeconds = () => {
+        if (task.assignedAt && task.status !== 'Completed') {
+            const start = new Date(task.assignedAt).getTime();
+            const now = Date.now();
+            const diff = Math.floor((now - start) / 1000);
+            return diff > 0 ? diff : 0;
+        }
+        return 0;
+    };
+
+    const [seconds, setSeconds] = useState(calculateInitialSeconds());
+    const [isRunning, setIsRunning] = useState(true);
     const [notes, setNotes] = useState('');
 
     useEffect(() => {
@@ -162,13 +184,13 @@ const TimerModal = ({ task, onClose, onSaveTimesheet }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
             <div className="glass-card w-full max-w-md p-8 animate-in fade-in zoom-in duration-200">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold">Time Tracker</h2>
+                    <h2 className="text-2xl font-bold">Log Time</h2>
                     <button onClick={onClose} className="text-muted hover:text-white"><X size={24} /></button>
                 </div>
 
                 <div className="space-y-6">
                     <div className="text-center">
-                        <p className="text-sm text-muted mb-2">Tracking time for:</p>
+                        <p className="text-sm text-muted mb-2">Recording time for:</p>
                         <h3 className="text-lg font-bold text-primary">{task.title}</h3>
                     </div>
 
@@ -183,7 +205,7 @@ const TimerModal = ({ task, onClose, onSaveTimesheet }) => {
                                     className="bg-primary text-black font-black px-6 py-3 rounded-xl shadow-neon hover:scale-105 transition-all flex items-center gap-2"
                                 >
                                     <Play size={18} />
-                                    START
+                                    RESUME
                                 </button>
                             ) : (
                                 <button
@@ -194,13 +216,6 @@ const TimerModal = ({ task, onClose, onSaveTimesheet }) => {
                                     PAUSE
                                 </button>
                             )}
-                            <button
-                                onClick={() => { setSeconds(0); setIsRunning(false); }}
-                                className="bg-red-500/20 text-red-500 border border-red-500/30 font-black px-6 py-3 rounded-xl hover:scale-105 transition-all flex items-center gap-2"
-                            >
-                                <StopCircle size={18} />
-                                RESET
-                            </button>
                         </div>
                     </div>
 
@@ -219,7 +234,7 @@ const TimerModal = ({ task, onClose, onSaveTimesheet }) => {
                         disabled={seconds === 0}
                         className="w-full bg-primary text-black font-black py-4 rounded-xl shadow-neon hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
                     >
-                        SAVE TO TIMESHEET ({(seconds / 3600).toFixed(2)} hrs)
+                        SAVE & LOG ({(seconds / 3600).toFixed(2)} hrs)
                     </button>
                 </div>
             </div>
@@ -246,15 +261,19 @@ const TaskBoard = ({ user }) => {
 
     const [error, setError] = useState('');
 
+    const [users, setUsers] = useState([]);
+
     const fetchData = async () => {
         try {
-            const [tasksRes, projectsRes] = await Promise.all([
+            const [tasksRes, projectsRes, usersRes] = await Promise.all([
                 taskAPI.getTasks(),
-                projectAPI.getProjects()
+                projectAPI.getProjects(),
+                userAPI.getUsers()
             ]);
             console.log('Projects loaded:', projectsRes.data);
             setTasks(tasksRes.data);
             setProjects(projectsRes.data);
+            setUsers(usersRes.data);
             setError('');
         } catch (err) {
             console.error('Failed to fetch data:', err);
@@ -335,7 +354,7 @@ const TaskBoard = ({ user }) => {
                 description: description,
                 software: 'Task Timer'
             };
-            // await timesheetAPI.submitTimesheet(timesheetData);
+            await timesheetAPI.submitTimesheet(timesheetData);
             alert(`Timesheet saved: ${hours} hours logged for "${task.title}"`);
         } catch (err) {
             console.error('Failed to save timesheet:', err);
@@ -361,14 +380,16 @@ const TaskBoard = ({ user }) => {
                         <Filter size={18} />
                         Filter
                     </button>
-                    <button
-                        onClick={() => handleAddTask('To Do')}
-                        disabled={loading}
-                        className="bg-primary text-black font-black px-6 py-2.5 rounded-xl text-sm shadow-neon hover:scale-105 transition-all flex items-center gap-2 disabled:opacity-50"
-                    >
-                        <Plus size={18} />
-                        NEW TASK
-                    </button>
+                    {user && !['Team Member', 'Client'].includes(user.role) && (
+                        <button
+                            onClick={() => handleAddTask('To Do')}
+                            disabled={loading}
+                            className="bg-primary text-black font-black px-6 py-2.5 rounded-xl text-sm shadow-neon hover:scale-105 transition-all flex items-center gap-2 disabled:opacity-50"
+                        >
+                            <Plus size={18} />
+                            NEW TASK
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -379,10 +400,10 @@ const TaskBoard = ({ user }) => {
             )}
 
             <div className="flex gap-6 h-full overflow-x-auto pb-6 custom-scrollbar">
-                <Column title="To Do" status="To Do" tasks={tasks.filter(t => t.status === 'To Do')} onAddTask={handleAddTask} onStartTimer={handleStartTimer} onTaskClick={setSelectedTask} />
-                <Column title="In Progress" status="In Progress" tasks={tasks.filter(t => t.status === 'In Progress')} onAddTask={handleAddTask} onStartTimer={handleStartTimer} onTaskClick={setSelectedTask} />
-                <Column title="Review" status="Review" tasks={tasks.filter(t => t.status === 'Review')} onAddTask={handleAddTask} onStartTimer={handleStartTimer} onTaskClick={setSelectedTask} />
-                <Column title="Completed" status="Completed" tasks={tasks.filter(t => t.status === 'Completed')} onAddTask={handleAddTask} onStartTimer={handleStartTimer} onTaskClick={setSelectedTask} />
+                <Column title="To Do" status="To Do" tasks={tasks.filter(t => t.status === 'To Do')} onAddTask={handleAddTask} onStartTimer={handleStartTimer} onTaskClick={setSelectedTask} canCreate={user && !['Team Member', 'Client'].includes(user.role)} />
+                <Column title="In Progress" status="In Progress" tasks={tasks.filter(t => t.status === 'In Progress')} onAddTask={handleAddTask} onStartTimer={handleStartTimer} onTaskClick={setSelectedTask} canCreate={user && !['Team Member', 'Client'].includes(user.role)} />
+                <Column title="Review" status="Review" tasks={tasks.filter(t => t.status === 'Review')} onAddTask={handleAddTask} onStartTimer={handleStartTimer} onTaskClick={setSelectedTask} canCreate={user && !['Team Member', 'Client'].includes(user.role)} />
+                <Column title="Completed" status="Completed" tasks={tasks.filter(t => t.status === 'Completed')} onAddTask={handleAddTask} onStartTimer={handleStartTimer} onTaskClick={setSelectedTask} canCreate={user && !['Team Member', 'Client'].includes(user.role)} />
             </div>
 
             {showModal && (
@@ -446,12 +467,16 @@ const TaskBoard = ({ user }) => {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase text-muted tracking-widest">Assign To</label>
-                                    <input
+                                    <select
                                         className="w-full bg-card/50 border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary/50"
-                                        placeholder="User ID (optional)"
                                         value={formData.assignee}
                                         onChange={(e) => setFormData({ ...formData, assignee: e.target.value })}
-                                    />
+                                    >
+                                        <option value="">Unassigned</option>
+                                        {users.map(u => (
+                                            <option key={u._id} value={u._id}>{u.name} ({u.role})</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                             <button

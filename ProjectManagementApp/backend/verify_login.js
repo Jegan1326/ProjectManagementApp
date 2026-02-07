@@ -9,7 +9,7 @@ const verifyLogin = async () => {
         await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/project_management');
         console.log('Connected to MongoDB...');
 
-        const email = 'manager@example.com';
+        const email = 'employee@example.com';
         const password = 'password123';
 
         const user = await User.findOne({ email });
